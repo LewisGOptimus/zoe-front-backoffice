@@ -12,7 +12,7 @@
     >
 
       <!-- Sidebar header -->
-      <div class="relative flex justify-center items-center w-full mb-8 min-h-32 lg:min-h-16 lg:sidebar-expanded:min-h-32">
+      <div class="relative flex justify-center items-center w-full mb-8 min-h-36 lg:min-h-20 lg:sidebar-expanded:min-h-40 2xl:min-h-36">
         <button
           ref="trigger"
           class="absolute left-0 top-1/2 -translate-y-1/2 lg:hidden text-gray-500 hover:text-gray-400 z-10"
@@ -29,12 +29,15 @@
           <img
             src="/images/logo.png"
             alt="Zoe"
-            class="w-full h-28 object-contain lg:h-14 lg:sidebar-expanded:h-32"
-            width="280"
-            height="128"
+            class="mx-auto h-20 w-auto max-w-full object-contain lg:h-12 lg:sidebar-expanded:h-20 2xl:h-20"
+            width="140"
+            height="70"
           />
-          <span class="mt-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-            By Optimun
+          <span
+            class="mt-2 font-bold leading-none whitespace-nowrap text-[1.25rem] lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200"
+            aria-label="BackOffice"
+          >
+            <span class="text-[#1B2B4B] dark:text-white">Back</span><span class="text-[#007BFF]">Office</span>
           </span>
         </router-link>
       </div>

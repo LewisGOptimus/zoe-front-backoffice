@@ -6,7 +6,7 @@ import type {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    'bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white border-transparent',
+    'bg-brand-500 text-white hover:bg-brand-600 border-transparent dark:bg-brand-500 dark:hover:bg-brand-600 dark:text-white',
   secondary:
     'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700/60 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-gray-300',
   tertiary:
@@ -63,7 +63,7 @@ export const BUTTON_DISABLED_CLASSES =
   'disabled:border-gray-200 dark:disabled:border-gray-700 disabled:bg-white dark:disabled:bg-gray-800 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed disabled:shadow-none'
 
 export const BUTTON_GROUP_ACTIVE_CLASSES =
-  'text-violet-500'
+  'text-brand-500'
 
 export const BUTTON_GROUP_INACTIVE_CLASSES =
   'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-600 dark:text-gray-300'
@@ -82,7 +82,7 @@ export function getButtonIconClasses(variant: ButtonVariant, iconOnly: boolean):
     return `${BUTTON_ICON_DEFAULT_CLASSES} text-violet-500`
   }
   if (variant === 'primary' || variant === 'danger' || variant === 'success') {
-    return `${BUTTON_ICON_DEFAULT_CLASSES} text-gray-400`
+    return `${BUTTON_ICON_DEFAULT_CLASSES} text-white/80`
   }
   return `${BUTTON_ICON_DEFAULT_CLASSES} text-gray-400 dark:text-gray-500`
 }

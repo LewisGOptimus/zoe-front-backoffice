@@ -152,5 +152,116 @@
         filter="url(#softGlowRightDark)"
       />
     </svg>
+
+    <!-- Formulario -->
+    <div class="relative z-10 flex min-h-screen items-center justify-center px-4">
+      <div
+        class="w-full max-w-[440px] rounded-2xl border border-[#007BFF]/10 bg-white/75 p-8 shadow-2xl shadow-blue-500/10 backdrop-blur-xl
+               dark:border-white/10 dark:bg-[#111827]/75 dark:shadow-black/30"
+      >
+        <!-- Logo nube -->
+        <div class="mb-8 text-center">
+          <div
+            class="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-[#007BFF]/10 text-[#007BFF]
+                   dark:bg-blue-500/10 dark:text-blue-400"
+          >
+            <svg class="size-10" viewBox="0 0 64 64" fill="none">
+              <path
+                d="M20 46H45C52 46 58 40 58 33C58 26 52 20 45 20C43 20 41 20.4 39 21.3C35.8 16.2 30.2 13 24 13C14.6 13 7 20.6 7 30C7 31.3 7.1 32.6 7.4 33.8C3.5 35.5 1 39.3 1 43.5C1 49.3 5.7 54 11.5 54H20"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
+            Bienvenido
+          </h1>
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Inicia sesión en tu cuenta empresarial
+          </p>
+        </div>
+
+        <!-- Botones sociales -->
+        <div class="space-y-3">
+          <button
+            type="button"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4285F4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#3478e5]"
+          >
+            Continuar con Google
+          </button>
+
+          <button
+            type="button"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700
+                   dark:bg-white/10 dark:hover:bg-white/15"
+          >
+            Continuar con GitHub
+          </button>
+        </div>
+
+        <!-- Separador -->
+        <div class="my-6 flex items-center gap-4">
+          <div class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+          <span class="text-xs text-slate-400">o</span>
+          <div class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+        </div>
+
+        <!-- Formulario -->
+        <form class="space-y-4" @submit.prevent>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              placeholder="ejemplo@empresa.com"
+              class="w-full rounded-xl border border-slate-300 bg-white/80 px-4 py-3 text-sm text-slate-900 outline-none transition
+                     placeholder:text-slate-400 focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10
+                     dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500"
+            />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              placeholder="Tu contraseña"
+              class="w-full rounded-xl border border-slate-300 bg-white/80 px-4 py-3 text-sm text-slate-900 outline-none transition
+                     placeholder:text-slate-400 focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10
+                     dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500"
+            />
+          </div>
+
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+              <input type="checkbox" class="rounded border-slate-300" />
+              Recuérdame
+            </label>
+
+            <a href="#" class="font-medium text-[#007BFF] hover:underline">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-[#007BFF] px-4 py-3 font-semibold text-white transition hover:bg-blue-600"
+          >
+            Iniciar sesión
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          ¿No tienes una cuenta?
+          <a href="#" class="font-semibold text-[#007BFF]">Contáctanos</a>
+        </p>
+      </div>
+    </div>
   </div>
 </template>
