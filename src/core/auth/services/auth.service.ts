@@ -1,5 +1,5 @@
 import type { GetMeResponse, LoginApiResponse } from '../types/auth.types';
-import { HEADER_FORCE_AUTH, HEADER_SKIP_AUTH } from '~/shared/constants/headers';
+import { HEADER_FORCE_AUTH, HEADER_SKIP_AUTH, HEADER_SKIP_NOTIFICATION } from '~/shared/constants/headers';
 
 export const useAuthService = () => {
   const { $apiCore } = useNuxtApp();
@@ -8,7 +8,7 @@ export const useAuthService = () => {
   const passwordlessLogin = (email: string): Promise<void> => {
     return $apiCore<void>('auth/admin/passwordless/start', {
       method: 'POST',
-      headers: { [HEADER_SKIP_AUTH]: '1' },
+      headers: { [HEADER_SKIP_AUTH]: '1', [HEADER_SKIP_NOTIFICATION]: '1' },
       body: {
         email,
       },
@@ -18,7 +18,7 @@ export const useAuthService = () => {
   const passwordlessLoginVerify = (email: string, otp: string): Promise<LoginApiResponse> => {
     return $apiCore<LoginApiResponse>('auth/admin/passwordless/verify', {
       method: 'POST',
-      headers: { [HEADER_SKIP_AUTH]: '1' },
+      headers: { [HEADER_SKIP_AUTH]: '1', [HEADER_SKIP_NOTIFICATION]: '1' },
       body: {
         email,
         otp,
@@ -29,7 +29,7 @@ export const useAuthService = () => {
   const refresh = (token: string): Promise<LoginApiResponse> => {
     return $apiCore<LoginApiResponse>('auth/refresh', {
       method: 'POST',
-      headers: { [HEADER_SKIP_AUTH]: '1' },
+      headers: { [HEADER_SKIP_AUTH]: '1', [HEADER_SKIP_NOTIFICATION]: '1' },
       body: {
         refreshToken: token,
       },
@@ -48,6 +48,7 @@ export const useAuthService = () => {
   const logout = (refreshToken: string): Promise<void> => {
     return $apiCore<void >('auth/logout', {
       method: 'POST',
+      headers: { [HEADER_SKIP_NOTIFICATION]: '1' },
       body: {
         refreshToken,
       },

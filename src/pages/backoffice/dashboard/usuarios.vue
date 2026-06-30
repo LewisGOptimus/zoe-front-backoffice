@@ -1,11 +1,11 @@
 <template>
   <div class="px-4 sm:px-6 lg:px-8 pt-12 pb-8 w-full max-w-[96rem] mx-auto">
-    <div class="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
-      <h1 class="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">
-        Usuarios
-      </h1>
+    <div class="mb-8 flex flex-col gap-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+        <h1 class="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">
+          Usuarios
+        </h1>
 
-      <div class="flex w-full flex-col gap-5 sm:w-auto sm:items-end">
         <Button
           class="w-full sm:w-auto"
           variant="primary"
@@ -19,8 +19,17 @@
           </template>
           Nuevo usuario
         </Button>
+      </div>
 
-        <div class="flex w-full flex-wrap items-center justify-end gap-2 sm:gap-3">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <FilterPills
+          v-model="userFilter"
+          :options="userFilterOptions"
+          aria-label="Filtrar usuarios"
+          wrapper-class="mb-0"
+        />
+
+        <div class="flex w-full flex-wrap items-center justify-start sm:w-auto sm:justify-end gap-2 sm:gap-3">
           <div class="w-full sm:w-64">
             <InputSearch
               v-model="searchQuery"
@@ -28,8 +37,15 @@
               search-label="Buscar"
             />
           </div>
-          <DateSelect v-model="datePeriod" />
-          <FilterButton align="right" />
+
+          <TableColumnToggle
+            v-model="visibleColumnKeys"
+            :columns="userColumns"
+            align="right"
+            @reset="resetVisibleColumns"
+          />
+
+          <ReloadButton :loading="isLoading" @click="handleReload" />
         </div>
       </div>
     </div>
@@ -37,7 +53,7 @@
     <UTable
       title="Todos los usuarios"
       :count="users.length"
-      :columns="columns"
+      :columns="visibleColumns"
       :rows="users"
       show-actions
       actions-mode="inline"
@@ -60,39 +76,64 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { Button } from '~/core/ui/buttons'
-import FilterButton from '~/core/ui/dropdown/DropdownFilter.vue'
-import DateSelect from '~/core/ui/form/DateSelect.vue'
+import { Button, ReloadButton } from '~/core/ui/buttons'
+import TableColumnToggle from '~/core/ui/dropdown/TableColumnToggle.vue'
+import { FilterPills } from '~/core/ui/filters'
 import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import PaginationClassic from '~/core/ui/pagination/PaginationClassic.vue'
 import UTable from '~/core/ui/Tables/Utable.vue'
-import type { UTableActionButton, UTableColumn, UTableRow } from '~/core/ui/Tables/utable.types'
+import type { UTableActionButton, UTableRow } from '~/core/ui/Tables/utable.types'
 import { useUsersStore } from '~/modules/administration/users/store/users.store'
 import { mapUsersToTableRows, userColumns } from '~/modules/administration/users/mappers/user-tables-mappers'
+import type { User } from '~/modules/administration/users/types/users.types'
+import { useVisibleTableColumns } from '~/shared/composables/use-visible-table-columns'
+import { buildFilterPillOptions, filterItemsByPill } from '~/shared/utils/build-filter-pill-options'
 import { filterTableRows } from '~/shared/utils/filter-table-rows'
-import { DATE_PERIOD_DEFAULT } from '~/shared/constants/date-periods'
-import type { DatePeriodId } from '~/shared/constants/date-periods'
-import { filterItemsByDatePeriod } from '~/shared/utils/date-range-filter'
 
 const usersStore = useUsersStore()
 const selectedItems = ref<Array<string | number>>([])
 const searchQuery = ref('')
-const datePeriod = ref<DatePeriodId>(DATE_PERIOD_DEFAULT)
+const userFilter = ref('all')
 const currentPage = ref(1)
 const amount = ref(10)
 const isLoading = ref(false)
 
-const columns = computed<UTableColumn[]>(() => userColumns)
+const {
+  visibleKeys: visibleColumnKeys,
+  visibleColumns,
+  resetVisibleColumns,
+} = useVisibleTableColumns(userColumns, { storageKey: 'table-columns:users' })
+
+const userFilterOptions = computed(() =>
+  buildFilterPillOptions<User>({
+    items: usersStore.users,
+    options: [
+      { key: 'all', label: 'Todos' },
+      { key: 'active', label: 'Activos', match: (user) => user.isActive },
+      { key: 'inactive', label: 'Inactivos', match: (user) => !user.isActive },
+      { key: 'verified', label: 'Verificados', match: (user) => user.isVerified },
+      { key: 'unverified', label: 'No verificados', match: (user) => !user.isVerified },
+      { key: 'admin', label: 'Superusuarios', match: (user) => user.isAdmin },
+    ],
+  }),
+)
+
 const users = computed(() => {
-  const source = usersStore.users
-  const byDate = filterItemsByDatePeriod(
-    source,
-    datePeriod.value,
-    (user) => user.createdAt,
+  const byFilter = filterItemsByPill(
+    usersStore.users,
+    userFilter.value,
+    'all',
+    {
+      active: (user) => user.isActive,
+      inactive: (user) => !user.isActive,
+      verified: (user) => user.isVerified,
+      unverified: (user) => !user.isVerified,
+      admin: (user) => user.isAdmin,
+    },
   )
 
   return filterTableRows(
-    mapUsersToTableRows(byDate),
+    mapUsersToTableRows(byFilter),
     searchQuery.value,
   )
 })
@@ -102,7 +143,7 @@ const actionButtons: UTableActionButton[] = [
   { key: 'delete', label: 'Eliminar', tone: 'danger' },
 ]
 
-const fetchUsers = async (page: number) => {
+const fetchUsers = async (page: number, force = false) => {
   isLoading.value = true
   currentPage.value = page
 
@@ -110,7 +151,7 @@ const fetchUsers = async (page: number) => {
     await usersStore.getUsers({
       amount: amount.value,
       page,
-    })
+    }, force)
     selectedItems.value = []
   } finally {
     isLoading.value = false
@@ -135,6 +176,11 @@ const handleRowAction = ({ action, row }: { action: string, row: UTableRow }) =>
 const handleChangePage = async (page: number) => {
   if (isLoading.value || page === currentPage.value) return
   await fetchUsers(page)
+}
+
+const handleReload = async () => {
+  if (isLoading.value) return
+  await fetchUsers(currentPage.value, true)
 }
 
 onMounted(() => {

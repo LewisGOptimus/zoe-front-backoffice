@@ -25,6 +25,7 @@
           </div>
           <FilterButton align="right" />
           <Datepicker align="right" />
+          <ReloadButton :loading="isReloading" @click="handleReload" />
         </div>
       </div>
     </div>
@@ -62,9 +63,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { reloadNuxtApp } from '#app'
 
 import Datepicker from '~/core/ui/form/Datepicker.vue'
 import FilterButton from '~/core/ui/dropdown/DropdownFilter.vue'
+import { ReloadButton } from '~/core/ui/buttons'
 import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import DashboardCard01 from '~/core/ui/dashboard/DashboardCard01.vue'
 import DashboardCard02 from '~/core/ui/dashboard/DashboardCard02.vue'
@@ -79,4 +82,16 @@ import DashboardCard10 from '~/core/ui/dashboard/DashboardCard10.vue'
 import DashboardCard11 from '~/core/ui/dashboard/DashboardCard11.vue'
 
 const searchQuery = ref('')
+const isReloading = ref(false)
+
+const handleReload = async () => {
+  if (isReloading.value) return
+  isReloading.value = true
+
+  try {
+    await reloadNuxtApp()
+  } finally {
+    isReloading.value = false
+  }
+}
 </script>

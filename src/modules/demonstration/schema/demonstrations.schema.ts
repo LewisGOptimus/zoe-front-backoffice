@@ -8,6 +8,16 @@ import type {
 } from '../types/demonstration.types'
 import { DemonstrationStatus } from '../types/demonstration.types'
 
+const NAME_REGEX = /^[\p{L}\s'.-]+$/u
+const PHONE_REGEX = /^\d{7,15}$/
+const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/
+
+export const sanitizeDemonstrationName = (value: string) =>
+  value.replace(/[^\p{L}\s'.-]/gu, '')
+
+export const sanitizeDemonstrationPhone = (value: string) =>
+  value.replace(/\D/g, '').slice(0, 15)
+
 const scheduledDateValue = z.union([
   z.string(),
   z.date(),
@@ -33,15 +43,28 @@ export const normalizeDemonstrationStatus = (value: unknown): DemonstrationStatu
 }
 
 export const demonstrationFormSchema = z.object({
-  name: z.string().trim().min(1, 'El nombre es obligatorio.'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'El nombre es obligatorio.')
+    .max(100, 'El nombre no puede superar 100 caracteres.')
+    .regex(NAME_REGEX, 'El nombre solo puede contener letras.'),
   email: z
     .string()
     .trim()
     .min(1, 'El email es obligatorio.')
     .email('Ingresa un email válido.'),
-  phone: z.string().trim().min(1, 'El teléfono es obligatorio.'),
+  phone: z
+    .string()
+    .trim()
+    .min(1, 'El teléfono es obligatorio.')
+    .regex(PHONE_REGEX, 'El teléfono debe contener solo números (7 a 15 dígitos).'),
   scheduledDate: scheduledDateValue,
-  scheduledTime: z.string().trim().min(1, 'La hora es obligatoria.'),
+  scheduledTime: z
+    .string()
+    .trim()
+    .min(1, 'La hora es obligatoria.')
+    .regex(TIME_REGEX, 'Ingresa una hora válida (HH:mm).'),
   productInterest: z
     .union([z.string(), z.number()])
     .transform(String)
@@ -51,6 +74,16 @@ export const demonstrationFormSchema = z.object({
     ctx.addIssue({
       code: 'custom',
       message: 'La fecha es obligatoria.',
+      path: ['scheduledDate'],
+    })
+    return
+  }
+
+  const parsedDate = parseScheduledDate(data.scheduledDate)
+  if (!parsedDate || Number.isNaN(parsedDate.getTime())) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Ingresa una fecha válida.',
       path: ['scheduledDate'],
     })
     return
@@ -105,7 +138,7 @@ export const mapDemonstrationResponseToFormValues = (
   return {
     name: demonstration.name,
     email: demonstration.email,
-    phone: demonstration.phone,
+    phone: sanitizeDemonstrationPhone(demonstration.phone),
     productInterest: demonstration.productInterest,
     scheduledDate: scheduledAt,
     scheduledTime: formatTimeValue(scheduledAt),

@@ -12,7 +12,7 @@
     >
 
       <!-- Sidebar header -->
-      <div class="relative flex justify-center items-center w-full mb-8 min-h-36 lg:min-h-20 lg:sidebar-expanded:min-h-40 2xl:min-h-36">
+      <div class="relative flex justify-center items-center w-full mb-2 min-h-36 lg:min-h-20 lg:sidebar-expanded:min-h-40 2xl:min-h-36">
         <button
           ref="trigger"
           class="absolute left-0 top-1/2 -translate-y-1/2 lg:hidden text-gray-500 hover:text-gray-400 z-10"
@@ -30,8 +30,8 @@
             src="/images/logo.png"
             alt="Zoe"
             class="mx-auto h-20 w-auto max-w-full object-contain lg:h-12 lg:sidebar-expanded:h-20 2xl:h-20"
-            width="140"
-            height="70"
+            width="90"
+            height="45"
           />
           <span
             class="mt-2 font-bold leading-none whitespace-nowrap text-[1.25rem] lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200"

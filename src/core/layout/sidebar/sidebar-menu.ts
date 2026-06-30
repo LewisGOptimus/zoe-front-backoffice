@@ -62,14 +62,9 @@ export const sidebarMenuSections: SidebarMenuSection[] = [
         key: 'scheduling',
         label: 'Agendamientos',
         iconPaths: sidebarIcons.scheduling,
+        to: `${BACKOFFICE_DASHBOARD_PATH}/demonstrations`,
         active: ({ route }: SidebarMenuContext) => route.path.includes('/demonstrations'),
-        children: [
-          {
-            key: 'scheduling-list',
-            label: 'Lista de agendamientos',
-            to: `${BACKOFFICE_DASHBOARD_PATH}/demonstrations`,
-          },
-        ],
+
       },
     ],
   },

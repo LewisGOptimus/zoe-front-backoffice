@@ -21,8 +21,13 @@ export const useBusinessNatureStore = defineStore('businessNature', () => {
     setBusinessNatures(response || []);
   };
 
+  const clear = () => {
+    businessNatures.value = [];
+  };
+
   return {
     businessNatures,
     getBusinessNatures,
+    clear,
   };
 });

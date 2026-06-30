@@ -42,6 +42,11 @@
     animation: fpFadeInDown 200ms ease-out;
 }
 
+.flatpickr-calendar.open,
+.flatpickr-overlay.open {
+    z-index: 9999;
+}
+
 .flatpickr-calendar.static {
     position: absolute;
     top: calc(100% + 4px);

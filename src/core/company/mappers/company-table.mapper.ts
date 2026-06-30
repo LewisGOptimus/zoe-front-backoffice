@@ -26,8 +26,7 @@ const ACTIVE_BADGE_CLASSES = {
 }
 
 export const companyColumns: UTableColumn[] = [
-  { key: 'businessName', label: 'Razón social', variant: 'emphasis' },
-  { key: 'tradeName', label: 'Nombre comercial' },
+  { key: 'businessName', label: 'Razón social', variant: 'emphasis', toggleable: false },
   { key: 'documentNumber', label: 'Documento' },
   { key: 'email', label: 'Email' },
   { key: 'taxResponsibility', label: 'Responsabilidad fiscal' },

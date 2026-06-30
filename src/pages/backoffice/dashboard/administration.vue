@@ -13,6 +13,7 @@
             search-label="Buscar"
           />
         </div>
+        <ReloadButton :loading="isReloading" @click="handleReload" />
       </div>
     </div>
   </div>
@@ -20,8 +21,22 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { reloadNuxtApp } from '#app'
 
+import { ReloadButton } from '~/core/ui/buttons'
 import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 
 const searchQuery = ref('')
+const isReloading = ref(false)
+
+const handleReload = async () => {
+  if (isReloading.value) return
+  isReloading.value = true
+
+  try {
+    await reloadNuxtApp()
+  } finally {
+    isReloading.value = false
+  }
+}
 </script>

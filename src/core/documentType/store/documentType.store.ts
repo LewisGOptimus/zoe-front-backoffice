@@ -21,8 +21,13 @@ export const useDocumentTypeStore = defineStore('documentType', () => {
     setDocumentTypes(response || []);
   };
 
+  const clear = () => {
+    documentTypes.value = [];
+  };
+
   return {
     documentTypes,
     getDocumentTypes,
+    clear,
   };
 });

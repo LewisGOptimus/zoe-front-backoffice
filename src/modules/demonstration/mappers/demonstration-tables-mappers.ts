@@ -39,7 +39,7 @@ const formatDemonstrationTime = (value: Date | string): string => {
 }
 
 export const demonstrationColumns: UTableColumn[] = [
-    { key: 'name', label: 'Nombre' },
+    { key: 'name', label: 'Nombre', toggleable: false },
     { key: 'email', label: 'Email' },
     { key: 'scheduledAt', label: 'Fecha programada' },
     { key: 'phone', label: 'Teléfono' },

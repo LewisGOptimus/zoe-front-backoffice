@@ -1,59 +1,44 @@
 <template>
-  <!-- Modal backdrop -->
-  <transition
-    enter-active-class="transition ease-out duration-200"
-    enter-from-class="opacity-0"
-    enter-to-class="opacity-100"
-    leave-active-class="transition ease-out duration-100"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
-  >
-    <div v-show="modalOpen" class="fixed inset-0 bg-gray-900/30 z-50 transition-opacity" aria-hidden="true"></div>
-  </transition>
-  <!-- Modal dialog -->
-  <transition
-    enter-active-class="transition ease-in-out duration-200"
-    enter-from-class="opacity-0 translate-y-4"
-    enter-to-class="opacity-100 translate-y-0"
-    leave-active-class="transition ease-in-out duration-200"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 translate-y-4"
-  >
-    <div v-show="modalOpen" :id="id" class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6" role="dialog" aria-modal="true">
-      <div ref="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto max-w-lg w-full max-h-full">
-        <!-- Modal header -->
-        <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-700/60">
-          <div class="flex justify-between items-center">
-            <div class="font-semibold text-gray-800 dark:text-gray-100">{{ title }}</div>
-            <button class="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400" @click.stop="close">
-              <div class="sr-only">Close</div>
-              <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16">
-                <path d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <slot />
+  <ModalShell :id="id" :modal-open="modalOpen" :size="size" @close-modal="emit('close-modal')">
+  <template #default="{ close }">
+    <header
+      v-if="title || description"
+      class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 bg-linear-to-b from-gray-50/90 to-white px-6 py-4 dark:border-gray-700/60 dark:from-gray-900/50 dark:to-gray-800"
+    >
+      <div class="min-w-0 pr-2">
+        <h2 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+          {{ title }}
+        </h2>
+        <p v-if="description" class="mt-1 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+          {{ description }}
+        </p>
       </div>
+      <ModalCloseButton @click="close" />
+    </header>
+
+    <div class="flex-1 overflow-y-auto">
+      <slot />
     </div>
-  </transition>
+  </template>
+  </ModalShell>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import ModalCloseButton from './ModalCloseButton.vue'
+import ModalShell from './ModalShell.vue'
+import type { ModalSize } from './modal.types'
 
-import { useModalDismiss } from './useModalDismiss'
-
-const props = defineProps<{
+withDefaults(defineProps<{
   id: string
   modalOpen: boolean
   title?: string
-}>()
+  description?: string
+  size?: ModalSize
+}>(), {
+  size: 'lg',
+})
 
 const emit = defineEmits<{
   'close-modal': []
 }>()
-
-const modalContent = ref<HTMLElement | null>(null)
-const { close } = useModalDismiss(() => props.modalOpen, modalContent, emit)
 </script>

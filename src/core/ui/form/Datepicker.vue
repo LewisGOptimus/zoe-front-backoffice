@@ -64,7 +64,7 @@ const config = computed(() => {
 
   return {
     mode: props.mode,
-    static: true,
+    appendTo: import.meta.client ? document.body : undefined,
     monthSelectorType: 'static' as const,
     dateFormat: format,
     ...(isRange
@@ -78,6 +78,7 @@ const config = computed(() => {
       }
       const customClass = props.align ?? ''
       instance.calendarContainer.classList.add(`flatpickr-${customClass}`)
+      instance.calendarContainer.classList.add('flatpickr-overlay')
     },
     onChange: (_selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => {
       if (isRange) {

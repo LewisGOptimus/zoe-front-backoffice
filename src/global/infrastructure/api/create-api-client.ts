@@ -1,7 +1,14 @@
 import type { ApiPluginNuxtApp } from './types';
 import { getRequestUrl, isAuthRefreshRequest } from './request-url';
 import { useAuthStore } from '~/core/auth/store/auth.store';
+import { useNotificationAlertStore } from '~/core/ui/notifications/notification-alert.store';
 import { HEADER_FORCE_AUTH, HEADER_SKIP_AUTH } from '~/shared/constants/headers';
+import {
+  extractApiErrorMessage,
+  extractApiSuccessMessage,
+  shouldShowApiErrorNotification,
+  shouldShowApiSuccessNotification,
+} from '~/shared/utils/api-notification.utils';
 
 type ApiClient = ReturnType<typeof $fetch.create>;
 type ApiResponseErrorContext = Parameters<
@@ -25,7 +32,7 @@ const isAuthBypassPath = (requestUrl: string): boolean =>
 
 const createResponseError = (response: ApiResponseErrorContext['response']) => {
   const data = response._data as { message?: string } | undefined;
-  const error = new Error(data?.message ?? `Request failed with status ${response.status}`) as Error & {
+  const error = new Error(data?.message ?? `La solicitud falló con el estado ${response.status}`) as Error & {
     data?: unknown;
     response: typeof response;
     status: number;
@@ -68,7 +75,26 @@ export function createApiClient(
 
       options.headers = headers;
     },
+    onResponse({ request, response, options }) {
+      if (!shouldShowApiSuccessNotification(request, response, options)) return;
+
+      nuxtApp.runWithContext(() => {
+        const route = useRoute()
+        const message = extractApiSuccessMessage(request, response, options, route.path)
+        if (!message) return;
+
+        useNotificationAlertStore().showSuccess(message)
+      })
+    },
     async onResponseError({ request, response, options }) {
+      if (shouldShowApiErrorNotification(request, response, options)) {
+        nuxtApp.runWithContext(() => {
+          const message = extractApiErrorMessage(request, response)
+
+          useNotificationAlertStore().showError(message)
+        })
+      }
+
       const authStore = useAuthStore();
       const requestOptions = options as ApiRequestOptions;
 
@@ -77,7 +103,7 @@ export function createApiClient(
       }
 
       if (response.status !== 401) {
-        return;
+        throw createResponseError(response);
       }
 
       if (isAuthRefreshRequest(request)) {

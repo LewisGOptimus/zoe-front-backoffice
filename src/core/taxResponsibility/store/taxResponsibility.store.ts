@@ -21,8 +21,13 @@ export const useTaxResponsibilityStore = defineStore('taxResponsibility', () => 
     setTaxResponsibilities(response || []);
   };
 
+  const clear = () => {
+    taxResponsibilities.value = [];
+  };
+
   return {
     taxResponsibilities,
     getTaxResponsibilities,
+    clear,
   };
 });

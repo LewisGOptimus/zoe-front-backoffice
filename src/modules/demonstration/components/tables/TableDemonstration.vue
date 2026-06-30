@@ -38,6 +38,13 @@
                     />
                 </div>
                 <DateSelect v-model="datePeriod" />
+                <TableColumnToggle
+                    v-model="visibleColumnKeys"
+                    :columns="demonstrationColumns"
+                    align="right"
+                    @reset="resetVisibleColumns"
+                />
+                <ReloadButton :loading="isLoading" @click="handleReload" />
             </div>
         </div>
     </div>
@@ -46,7 +53,7 @@
     <UTable
         title="Todas las demostraciones"
         :count="demonstrations.length"
-        :columns="demonstrationColumns"
+        :columns="visibleColumns"
         :rows="demonstrations"
         show-actions
         actions-mode="inline"
@@ -82,15 +89,17 @@
 import { computed, onMounted, ref } from 'vue'
 
 import PaginationClassic from '~/core/ui/pagination/PaginationClassic.vue'
-import { Button } from '~/core/ui/buttons'
+import { Button, ReloadButton } from '~/core/ui/buttons'
 import UBadge from '~/core/ui/badge/UBadge.vue'
 import DateSelect from '~/core/ui/form/DateSelect.vue'
+import TableColumnToggle from '~/core/ui/dropdown/TableColumnToggle.vue'
 import { FilterPills } from '~/core/ui/filters'
 import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import UTable from '~/core/ui/Tables/Utable.vue'
 import type { UTableActionButton, UTableRow } from '~/core/ui/Tables/utable.types'
 import { DATE_PERIOD_DEFAULT } from '~/shared/constants/date-periods'
 import type { DatePeriodId } from '~/shared/constants/date-periods'
+import { useVisibleTableColumns } from '~/shared/composables/use-visible-table-columns'
 import { buildFilterPillOptions, filterItemsByPill } from '~/shared/utils/build-filter-pill-options'
 import { filterItemsByDatePeriod } from '~/shared/utils/date-range-filter'
 import { filterTableRows } from '~/shared/utils/filter-table-rows'
@@ -112,6 +121,13 @@ const demonstrationsStore = useDemonstrationsStore()
 const searchQuery = ref('')
 const datePeriod = ref<DatePeriodId>(DATE_PERIOD_DEFAULT)
 const statusFilter = ref('all')
+const isLoading = ref(false)
+
+const {
+    visibleKeys: visibleColumnKeys,
+    visibleColumns,
+    resetVisibleColumns,
+} = useVisibleTableColumns(demonstrationColumns, { storageKey: 'table-columns:demonstrations' })
 
 const demonstrationsByDate = computed(() =>
     filterItemsByDatePeriod(
@@ -175,10 +191,26 @@ const actionButtons: UTableActionButton[] = [
 ]
 
 const handleChangePage = async (page: number) => {
-    await demonstrationsStore.getDemonstrations({
-        amount: amount.value,
-        page,
-    })
+    if (isLoading.value) return
+    await fetchDemonstrations(page)
+}
+
+const fetchDemonstrations = async (page: number) => {
+    isLoading.value = true
+
+    try {
+        await demonstrationsStore.getDemonstrations({
+            amount: amount.value,
+            page,
+        })
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const handleReload = async () => {
+    if (isLoading.value) return
+    await fetchDemonstrations(currentPage.value)
 }
 
 const handleRowAction = async ({ action, row }: { action: string, row: UTableRow }) => {
@@ -198,9 +230,6 @@ const handleRowAction = async ({ action, row }: { action: string, row: UTableRow
 }
 
 onMounted(async () => {
-    await demonstrationsStore.getDemonstrations({
-        amount: amount.value,
-        page: currentPage.value,
-    })
+    await fetchDemonstrations(currentPage.value)
 })
 </script>

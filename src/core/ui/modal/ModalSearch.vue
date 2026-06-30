@@ -1,28 +1,12 @@
 <template>
-  <!-- Modal backdrop -->
-  <transition
-    enter-active-class="transition ease-out duration-200"
-    enter-from-class="opacity-0"
-    enter-to-class="opacity-100"
-    leave-active-class="transition ease-out duration-100"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
+  <ModalShell
+    :id="id"
+    :modal-open="modalOpen"
+    position="top"
+    size="2xl"
+    @close-modal="emit('close-modal')"
   >
-    <div v-show="modalOpen" class="fixed inset-0 bg-gray-900/30 z-50 transition-opacity" aria-hidden="true"></div>
-  </transition>
-  <!-- Modal dialog -->
-  <transition
-    enter-active-class="transition ease-in-out duration-200"
-    enter-from-class="opacity-0 translate-y-4"
-    enter-to-class="opacity-100 translate-y-0"
-    leave-active-class="transition ease-in-out duration-200"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 translate-y-4"
-  >
-    <div v-show="modalOpen" :id="id" class="fixed inset-0 z-50 overflow-hidden flex items-start top-20 mb-4 justify-center px-4 sm:px-6" role="dialog" aria-modal="true">
-      <div ref="modalContent" class="bg-white dark:bg-gray-800 border border-transparent dark:border-gray-700/60 overflow-auto max-w-2xl w-full max-h-full rounded-lg shadow-lg">
-        <!-- Search form -->
-        <form class="border-b border-gray-200 dark:border-gray-700/60">
+    <form class="border-b border-gray-100 dark:border-gray-700/60">
           <div class="relative">
             <label :for="searchId" class="sr-only">Search</label>
             <input :id="searchId" class="w-full dark:text-gray-300 bg-white dark:bg-gray-800 border-0 focus:ring-transparent placeholder-gray-400 dark:placeholder-gray-500 appearance-none py-3 pl-10 pr-4" type="search" placeholder="Search Anything…" ref="searchInput" />
@@ -112,15 +96,13 @@
             </ul>
           </div>
         </div>
-      </div>
-    </div>
-  </transition>
+  </ModalShell>
 </template>
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 
-import { useModalDismiss } from './useModalDismiss'
+import ModalShell from './ModalShell.vue'
 
 const props = defineProps<{
   id: string
@@ -133,10 +115,7 @@ const emit = defineEmits<{
   'close-modal': []
 }>()
 
-const modalContent = ref<HTMLElement | null>(null)
 const searchInput = ref<HTMLInputElement | null>(null)
-
-const { close } = useModalDismiss(() => props.modalOpen, modalContent, emit)
 
 watch(() => props.modalOpen, (open) => {
   if (open) nextTick(() => searchInput.value?.focus())

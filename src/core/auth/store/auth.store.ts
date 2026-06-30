@@ -6,6 +6,7 @@ import { useAuthService } from '../services/auth.service';
 import type { User } from '../types/auth.types';
 
 import { useCompanyStore } from '~/core/company/store/company.store';
+import { useCatalogStore } from '~/core/catalog/store/catalog.store';
 import { clearCompanyStores } from '~/shared/utils/clear-company-stores';
 import { useAuthSessionStore } from './auth-session.store';
 
@@ -62,10 +63,12 @@ export const useAuthStore = defineStore(
       if (!user.value?.id || user.value.id !== payload.id) {
         useCompanyStore().clearCompanyLists();
         clearCompanyStores();
+        useCatalogStore().clear();
       }
 
       user.value = payload;
       isLoggedIn.value = true;
+      void useCatalogStore().preload();
     };
 
     const clearAccessToken = () => {
@@ -164,6 +167,7 @@ export const useAuthStore = defineStore(
         lastAuthRedirectAt.value = 0;
         useCompanyStore().clearCompanyLists();
         clearCompanyStores();
+        useCatalogStore().clear();
       }
 
       if (error !== undefined) {

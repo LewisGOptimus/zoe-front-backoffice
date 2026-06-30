@@ -1,13 +1,15 @@
 <template>
-  <form class="space-y-4" @submit.prevent="handleSubmit">
+  <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
     <InputText
       id="demonstration-name"
-      v-model="form.name"
+      :model-value="form.name"
       name="name"
+      type="text"
       label="Nombre"
       placeholder="Nombre del contacto"
       required
       :error="errors.name"
+      @update:model-value="onNameChange"
     />
 
     <InputText
@@ -23,13 +25,15 @@
 
     <InputText
       id="demonstration-phone"
-      v-model="form.phone"
+      :model-value="form.phone"
       name="phone"
       type="tel"
       label="Teléfono"
-      placeholder="+57 300 000 0000"
+      placeholder="3000000000"
       required
+      input-class="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       :error="errors.phone"
+      @update:model-value="onPhoneChange"
     />
 
     <div class="grid gap-4 sm:grid-cols-2">
@@ -95,6 +99,8 @@ import {
   mapDemonstrationResponseToFormValues,
   parseDemonstrationForm,
   parseDemonstrationUpdateForm,
+  sanitizeDemonstrationName,
+  sanitizeDemonstrationPhone,
   type DemonstrationFormErrors,
 } from '../../schema/demonstrations.schema'
 
@@ -137,6 +143,16 @@ const initialForm = () => ({
 const form = reactive(initialForm())
 
 const errors = reactive<DemonstrationFormErrors>(emptyDemonstrationFormErrors())
+
+const onNameChange = (value: string) => {
+  form.name = sanitizeDemonstrationName(value)
+  errors.name = ''
+}
+
+const onPhoneChange = (value: string) => {
+  form.phone = sanitizeDemonstrationPhone(value)
+  errors.phone = ''
+}
 
 const reset = () => {
   Object.assign(form, initialForm())

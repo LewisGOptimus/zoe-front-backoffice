@@ -83,6 +83,15 @@ export const useUbicationStore = defineStore('ubication', () => {
     }
   };
 
+  const clear = () => {
+    countriesAvailable.value = [];
+    countries.value = [];
+    allCountries.value = [];
+    municipalities.value = [];
+    municipalitiesById.value = {};
+    pendingMunicipalityRequests.clear();
+  };
+
   return {
     countriesAvailable,
     getCountriesAvailable,
@@ -94,5 +103,6 @@ export const useUbicationStore = defineStore('ubication', () => {
     getCountries,
     allCountries,
     getAllCountries,
+    clear,
   };
 });

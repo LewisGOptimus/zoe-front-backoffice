@@ -33,6 +33,8 @@ export type UTableColumn = {
   classMapKey?: string
   /** Clase por defecto si `classMap` no tiene entrada. */
   classMapFallback?: string
+  /** Si es `false`, la columna no aparece en el selector y siempre se muestra. */
+  toggleable?: boolean
   /** Mapa valor → paths SVG para `icon-label`. Cada pantalla define el suyo. */
   iconMap?: Record<string, string[]>
 }

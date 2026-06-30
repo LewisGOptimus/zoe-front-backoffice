@@ -6,11 +6,11 @@
       title="Crear demostración"
       @close-modal="handleClose"
     >
-    <div class="px-5 py-4">
+    <div class="px-6 py-5">
       <FormDemonstration ref="formRef" @submit="handleCreate" />
     </div>
 
-    <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700/60 flex justify-end gap-2">
+    <div class="flex justify-end gap-2 border-t border-gray-100 bg-gray-50/70 px-6 py-4 dark:border-gray-700/60 dark:bg-gray-900/30">
       <Button variant="secondary" :disabled="isSubmitting" @click="handleClose">
         Cancelar
       </Button>

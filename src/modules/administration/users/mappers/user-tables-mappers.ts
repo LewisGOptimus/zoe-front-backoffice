@@ -2,7 +2,7 @@ import type { User } from '~/modules/administration/users/types/users.types'
 import type { UTableColumn, UTableRow } from '~/core/ui/Tables/utable.types'
 
 export const userColumns: UTableColumn[] = [
-  { key: 'firstName', label: 'Nombre', variant: 'emphasis' },
+  { key: 'firstName', label: 'Nombre', variant: 'emphasis', toggleable: false },
   { key: 'lastName', label: 'Apellido' },
   { key: 'email', label: 'Email' },
   {
