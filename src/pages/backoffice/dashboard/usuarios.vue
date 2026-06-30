@@ -8,18 +8,13 @@
       </div>
 
       <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-        <Button
-          variant="danger-outline"
-          :disabled="selectedItems.length === 0"
-          @click="handleDeleteSelected"
-        >
-          <template #icon>
-            <svg width="16" height="16" viewBox="0 0 16 16">
-              <path d="M5 7h2v6H5V7zm4 0h2v6H9V7zm3-6v2h4v2h-1v10c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V5H0V3h4V1c0-.6.4-1 1-1h6c.6 0 1 .4 1 1zM6 2v1h4V2H6zm7 3H3v9h10V5z" />
-            </svg>
-          </template>
-          Eliminar
-        </Button>
+        <div class="w-56">
+          <InputSearch
+            v-model="searchQuery"
+            placeholder="Buscar..."
+            search-label="Buscar"
+          />
+        </div>
 
         <DateSelect />
         <FilterButton align="right" />
@@ -68,22 +63,28 @@ import { computed, onMounted, ref } from 'vue'
 import { Button } from '~/core/ui/buttons'
 import FilterButton from '~/core/ui/dropdown/DropdownFilter.vue'
 import DateSelect from '~/core/ui/form/DateSelect.vue'
+import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import PaginationClassic from '~/core/ui/pagination/PaginationClassic.vue'
 import UTable from '~/core/ui/Tables/Utable.vue'
 import type { UTableActionButton, UTableColumn, UTableRow } from '~/core/ui/Tables/utable.types'
 import { useUsersStore } from '~/modules/administration/users/store/users.store'
 import { mapUsersToTableRows, userColumns } from '~/modules/administration/users/mappers/user-tables-mappers'
 import type { User } from '~/core/auth/types/auth.types'
+import { filterTableRows } from '~/shared/utils/filter-table-rows'
 
 const usersStore = useUsersStore()
 const selectedItems = ref<Array<string | number>>([])
+const searchQuery = ref('')
 const currentPage = ref(1)
 const amount = ref(10)
 const isLoading = ref(false)
 
 const columns = computed<UTableColumn[]>(() => userColumns)
 const users = computed(() =>
-  mapUsersToTableRows(usersStore.users as unknown as User[])
+  filterTableRows(
+    mapUsersToTableRows(usersStore.users as unknown as User[]),
+    searchQuery.value,
+  ),
 )
 
 const actionButtons: UTableActionButton[] = [

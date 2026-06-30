@@ -17,6 +17,8 @@ export const useUbicationStore = defineStore('ubication', () => {
   const countries = ref<Country[]>([]);
   const allCountries = ref<Country[]>([]);
   const municipalities = ref<Municipality[]>([]);
+  const municipalitiesById = ref<Record<string, Municipality>>({});
+  const pendingMunicipalityRequests = new Map<string, Promise<Municipality | undefined>>();
 
   const setCountriesAvailable = (payload: Country[]) => {
     countriesAvailable.value = payload;
@@ -55,11 +57,39 @@ export const useUbicationStore = defineStore('ubication', () => {
     setMunicipalities(response);
   };
 
+  const getMunicipalityById = async (id: string, force = false) => {
+    if (!force && municipalitiesById.value[id]) return municipalitiesById.value[id];
+
+    const pendingRequest = pendingMunicipalityRequests.get(id);
+    if (!force && pendingRequest) return pendingRequest;
+
+    const request = (async () => {
+      const { response } = await municipalitySvc.search({ id });
+      const municipality = response?.find((item) => item.id === id);
+
+      if (municipality) {
+        municipalitiesById.value[id] = municipality;
+      }
+
+      return municipality;
+    })();
+
+    pendingMunicipalityRequests.set(id, request);
+
+    try {
+      return await request;
+    } finally {
+      pendingMunicipalityRequests.delete(id);
+    }
+  };
+
   return {
     countriesAvailable,
     getCountriesAvailable,
     municipalities,
     getMunicipalities,
+    municipalitiesById,
+    getMunicipalityById,
     countries,
     getCountries,
     allCountries,

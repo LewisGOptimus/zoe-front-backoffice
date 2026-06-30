@@ -11,6 +11,13 @@
 
       <!-- Right: Actions -->
       <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+        <div class="w-56">
+          <InputSearch
+            v-model="searchQuery"
+            placeholder="Buscar..."
+            search-label="Buscar"
+          />
+        </div>
 
         <!-- Filter button -->
         <FilterButton align="right" />
@@ -62,8 +69,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import Datepicker from '~/core/ui/form/Datepicker.vue'
 import FilterButton from '~/core/ui/dropdown/DropdownFilter.vue'
+import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import DashboardCard01 from '~/core/ui/dashboard/DashboardCard01.vue'
 import DashboardCard02 from '~/core/ui/dashboard/DashboardCard02.vue'
 import DashboardCard03 from '~/core/ui/dashboard/DashboardCard03.vue'
@@ -75,4 +85,6 @@ import DashboardCard08 from '~/core/ui/dashboard/DashboardCard08.vue'
 import DashboardCard09 from '~/core/ui/dashboard/DashboardCard09.vue'
 import DashboardCard10 from '~/core/ui/dashboard/DashboardCard10.vue'
 import DashboardCard11 from '~/core/ui/dashboard/DashboardCard11.vue'
+
+const searchQuery = ref('')
 </script>

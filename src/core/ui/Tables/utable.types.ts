@@ -17,7 +17,9 @@ export type UTableClassMap = Record<string, string>
 export type UTableColumn = {
   key: string
   label: string
+  /** @deprecated UTable alinea siempre títulos y celdas a la izquierda. */
   align?: UTableColumnAlign
+  /** @deprecated UTable alinea siempre títulos y celdas a la izquierda. */
   headerAlign?: UTableColumnAlign
   type?: UTableColumnType
   variant?: UTableColumnVariant

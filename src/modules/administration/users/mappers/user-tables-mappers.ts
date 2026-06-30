@@ -2,7 +2,7 @@ import type { User } from '~/core/auth/types/auth.types'
 import type { UTableColumn, UTableRow } from '~/core/ui/Tables/utable.types'
 
 export const userColumns: UTableColumn[] = [
-  { key: 'firstName', label: 'Nombre' },
+  { key: 'firstName', label: 'Nombre', variant: 'emphasis' },
   { key: 'lastName', label: 'Apellido' },
   { key: 'email', label: 'Email' },
   {
@@ -11,12 +11,12 @@ export const userColumns: UTableColumn[] = [
     type: 'badge',
     align: 'center',
     classMap: {
-      Usuario: 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-300',
+      Usuario: 'bg-brand-500/20 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300',
       Subusuario: 'bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300',
     },
   },
-  { key: 'isActive', label: 'Activo', type: 'badge', align: 'center', classMap: { Activo: 'bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-300', Inactivo: 'bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-300' } },
-  { key: 'isVerified', label: 'Verificado', type: 'badge', align: 'center', classMap: { Verificado: 'bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-300', NoVerificado: 'bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-300' } },
+  { key: 'isActive', label: 'Activo', type: 'badge', align: 'center', classMap: { Activo: 'bg-green-500/20 text-green-700 dark:bg-green-500/20 dark:text-green-300', Inactivo: 'bg-red-500/20 text-red-700 dark:bg-red-500/20 dark:text-red-300' } },
+  { key: 'isVerified', label: 'Verificado', type: 'badge', align: 'center', classMap: { Verificado: 'bg-green-500/20 text-green-700 dark:bg-green-500/20 dark:text-green-300', 'No verificado': 'bg-red-500/20 text-red-700 dark:bg-red-500/20 dark:text-red-300' } },
   { key: 'isAdmin', label: 'SuperUsuario' },
 ]
 

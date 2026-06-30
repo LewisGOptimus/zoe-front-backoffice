@@ -9,6 +9,8 @@ export const useUsersStore = defineStore('users', () => {
     const total = ref(0);
     const page = ref(1);
     const amount = ref(10);
+    const cachedPages = ref<Record<string, { users: User[]; total: number }>>({});
+    const pendingRequests = new Map<string, Promise<void>>();
 
     const normalizeResponse = (response: User[] | PaginatedUsersResponse): { users: User[]; total: number } => {
         if (Array.isArray(response)) {
@@ -22,21 +24,46 @@ export const useUsersStore = defineStore('users', () => {
         };
     };
 
-    const getUsers = async (params: GetUsersParams) => {
+    const getUsers = async (params: GetUsersParams, force = false) => {
+        const cacheKey = `${params.page}:${params.amount}`;
         page.value = params.page;
         amount.value = params.amount;
 
-        const { response } = await useUsersService().getUsers(params);
-        const normalized = normalizeResponse(response);
+        if (!force && cachedPages.value[cacheKey]) {
+            users.value = cachedPages.value[cacheKey].users;
+            total.value = cachedPages.value[cacheKey].total;
+            return;
+        }
 
-        users.value = normalized.users;
-        total.value = normalized.total;
+        const pendingRequest = pendingRequests.get(cacheKey);
+        if (!force && pendingRequest) {
+            await pendingRequest;
+            return;
+        }
+
+        const request = (async () => {
+            const { response } = await useUsersService().getUsers(params);
+            const normalized = normalizeResponse(response);
+
+            users.value = normalized.users;
+            total.value = normalized.total;
+            cachedPages.value[cacheKey] = normalized;
+        })();
+
+        pendingRequests.set(cacheKey, request);
+
+        try {
+            await request;
+        } finally {
+            pendingRequests.delete(cacheKey);
+        }
     }
     return {
         users,
         total,
         page,
         amount,
+        cachedPages,
         getUsers,
     }
 })

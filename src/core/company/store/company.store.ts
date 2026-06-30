@@ -14,6 +14,8 @@ export const useCompanyStore = defineStore('company', () => {
   const total = ref(0)
   const page = ref(1)
   const amount = ref(10)
+  const cachedPages = ref<Record<string, { companies: Company[]; total: number }>>({})
+  const pendingRequests = new Map<string, Promise<void>>()
 
   const normalizeResponse = (response: Company[] | PaginatedCompaniesResponse): { companies: Company[]; total: number } => {
     if (Array.isArray(response)) {
@@ -27,19 +29,47 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  const getCompanies = async (params: GetCompaniesParams) => {
+  const getCompanies = async (params: GetCompaniesParams, force = false) => {
+    const cacheKey = `${params.page}:${params.amount}`
     page.value = params.page
     amount.value = params.amount
 
-    const { response } = await useCompanyService().getCompanies(params)
-    const normalized = normalizeResponse(response)
+    if (!force && cachedPages.value[cacheKey]) {
+      companies.value = cachedPages.value[cacheKey].companies
+      total.value = cachedPages.value[cacheKey].total
+      return
+    }
 
-    companies.value = normalized.companies
-    total.value = normalized.total
+    const pendingRequest = pendingRequests.get(cacheKey)
+    if (!force && pendingRequest) {
+      await pendingRequest
+      return
+    }
+
+    const request = (async () => {
+      const { response } = await useCompanyService().getCompanies(params)
+      const normalized = normalizeResponse(response)
+
+      companies.value = normalized.companies
+      total.value = normalized.total
+      cachedPages.value[cacheKey] = normalized
+    })()
+
+    pendingRequests.set(cacheKey, request)
+
+    try {
+      await request
+    } finally {
+      pendingRequests.delete(cacheKey)
+    }
   }
 
   const clearCompanyLists = () => {
     currentCompany.value = null
+    companies.value = []
+    total.value = 0
+    cachedPages.value = {}
+    pendingRequests.clear()
   }
 
   return {

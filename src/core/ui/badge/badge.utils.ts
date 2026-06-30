@@ -8,12 +8,12 @@ import type {
 const APPEARANCE_CLASSES: Record<BadgeAppearance, Record<BadgeColor, string>> = {
   soft: {
     neutral: 'bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300',
-    primary: 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-300',
-    success: 'bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-300',
-    warning: 'bg-yellow-500/10 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300',
-    danger: 'bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-300',
-    info: 'bg-sky-500/10 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
-    violet: 'bg-violet-500/10 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+    primary: 'bg-brand-500/20 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300',
+    success: 'bg-green-500/20 text-green-700 dark:bg-green-500/20 dark:text-green-300',
+    warning: 'bg-yellow-500/20 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300',
+    danger: 'bg-red-500/20 text-red-700 dark:bg-red-500/20 dark:text-red-300',
+    info: 'bg-sky-500/20 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
+    violet: 'bg-violet-500/20 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
   },
   solid: {
     neutral: 'bg-gray-500 text-white',

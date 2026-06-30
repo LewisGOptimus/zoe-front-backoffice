@@ -8,18 +8,13 @@
       </div>
 
       <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-        <Button
-          variant="danger-outline"
-          :disabled="selectedItems.length === 0"
-          @click="handleDeleteSelected"
-        >
-          <template #icon>
-            <svg width="16" height="16" viewBox="0 0 16 16">
-              <path d="M5 7h2v6H5V7zm4 0h2v6H9V7zm3-6v2h4v2h-1v10c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V5H0V3h4V1c0-.6.4-1 1-1h6c.6 0 1 .4 1 1zM6 2v1h4V2H6zm7 3H3v9h10V5z" />
-            </svg>
-          </template>
-          Eliminar
-        </Button>
+        <div class="w-56">
+          <InputSearch
+            v-model="searchQuery"
+            placeholder="Buscar..."
+            search-label="Buscar"
+          />
+        </div>
 
         <DateSelect />
         <FilterButton align="right" />
@@ -51,7 +46,7 @@
       @action="handleRowAction"
     >
       <template #cell-documentNumber="{ row }">
-        <div class="flex flex-col items-start gap-1">
+        <div class="flex flex-col items-start gap-1 text-left">
           <span class="font-medium text-gray-800 dark:text-gray-100">
             {{ row.documentNumber }}
           </span>
@@ -61,7 +56,23 @@
             appearance="soft"
             size="xs"
           >
-            {{ row.documentType }}
+            {{ formatTableText(row.documentType) }}
+          </UBadge>
+        </div>
+      </template>
+
+      <template #cell-municipality="{ row }">
+        <div class="flex flex-col items-start gap-1">
+          <span class="text-gray-800 dark:text-gray-100">
+            {{ row.municipalityCity }}
+          </span>
+          <UBadge
+            v-if="row.municipalityState && row.municipalityState !== '-'"
+            color="info"
+            appearance="soft"
+            size="xs"
+          >
+            {{ formatTableText(row.municipalityState) }}
           </UBadge>
         </div>
       </template>
@@ -85,7 +96,7 @@ import { useBusinessNatureStore } from '~/core/businessNature/store/businessNatu
 import {
   companyColumns,
   mapCompaniesToTableRows,
-  type CompanyCatalogItem,
+  type CompanyMunicipalityItem,
 } from '~/core/company/mappers/company-table.mapper'
 import { useCompanyStore } from '~/core/company/store/company.store'
 import { useDocumentTypeStore } from '~/core/documentType/store/documentType.store'
@@ -94,10 +105,13 @@ import { useUbicationStore } from '~/core/ubication/store/ubication.store'
 import { Button } from '~/core/ui/buttons'
 import FilterButton from '~/core/ui/dropdown/DropdownFilter.vue'
 import DateSelect from '~/core/ui/form/DateSelect.vue'
+import InputSearch from '~/core/ui/inputs/InputSearch.vue'
 import PaginationClassic from '~/core/ui/pagination/PaginationClassic.vue'
 import UBadge from '~/core/ui/badge/UBadge.vue'
 import UTable from '~/core/ui/Tables/Utable.vue'
 import type { UTableActionButton, UTableRow } from '~/core/ui/Tables/utable.types'
+import { toTitleCase } from '~/shared/utils/format'
+import { filterTableRows } from '~/shared/utils/filter-table-rows'
 
 const businessNatureStore = useBusinessNatureStore()
 const companyStore = useCompanyStore()
@@ -106,22 +120,26 @@ const taxResponsibilityStore = useTaxResponsibilityStore()
 const ubicationStore = useUbicationStore()
 
 const selectedItems = ref<Array<string | number>>([])
+const searchQuery = ref('')
 const currentPage = ref(1)
 const amount = ref(10)
 const isLoading = ref(false)
-const municipalitiesById = ref<Record<string, CompanyCatalogItem>>({})
+const municipalitiesById = ref<Record<string, CompanyMunicipalityItem>>({})
 
 const totalCompanies = computed(() => companyStore.total)
 
 const municipalityItems = computed(() => Object.values(municipalitiesById.value))
 
 const rows = computed<UTableRow[]>(() =>
-  mapCompaniesToTableRows(companyStore.companies, {
-    businessNatures: businessNatureStore.businessNatures,
-    taxResponsibilities: taxResponsibilityStore.taxResponsibilities,
-    documentTypes: documentTypeStore.documentTypes,
-    municipalities: municipalityItems.value,
-  }),
+  filterTableRows(
+    mapCompaniesToTableRows(companyStore.companies, {
+      businessNatures: businessNatureStore.businessNatures,
+      taxResponsibilities: taxResponsibilityStore.taxResponsibilities,
+      documentTypes: documentTypeStore.documentTypes,
+      municipalities: municipalityItems.value,
+    }),
+    searchQuery.value,
+  ),
 )
 
 const actionButtons: UTableActionButton[] = [
@@ -146,13 +164,13 @@ const fetchMunicipalityNames = async () => {
     municipalityIds.map(async (id) => {
       if (municipalitiesById.value[id]) return
 
-      await ubicationStore.getMunicipalities({ id })
-      const municipality = ubicationStore.municipalities.find((item) => item.id === id)
+      const municipality = await ubicationStore.getMunicipalityById(id)
 
       if (municipality) {
         municipalitiesById.value[id] = {
           id: municipality.id,
-          name: `${municipality.name} - ${municipality.state.name}`,
+          city: municipality.name,
+          state: municipality.state.name,
         }
       }
     }),
@@ -190,13 +208,20 @@ const handleRowAction = ({ action, row }: { action: string, row: UTableRow }) =>
   console.log(action, row.id)
 }
 
+const formatTableText = (value: unknown) => {
+  if (typeof value !== 'string' || value === '-') return String(value ?? '')
+  return toTitleCase(value)
+}
+
 const handleChangePage = async (page: number) => {
   if (isLoading.value || page === currentPage.value) return
   await fetchCompanies(page)
 }
 
 onMounted(async () => {
-  await fetchCatalogs()
-  await fetchCompanies(currentPage.value)
+  await Promise.all([
+    fetchCatalogs(),
+    fetchCompanies(currentPage.value),
+  ])
 })
 </script>

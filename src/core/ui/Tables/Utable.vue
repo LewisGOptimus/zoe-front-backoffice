@@ -1,21 +1,18 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
-    <header v-if="title" class="px-5 py-4">
+  <div class="bg-white dark:bg-gray-800 shadow-xs rounded-xl overflow-hidden relative">
+    <header v-if="title" class="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
       <h2 class="font-semibold text-gray-800 dark:text-gray-100">
         {{ title }}
         <span v-if="count !== undefined" class="text-gray-400 dark:text-gray-500 font-medium">{{ count }}</span>
       </h2>
     </header>
 
-    <div>
-
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="table-auto w-full dark:text-gray-300">
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full text-gray-600 dark:text-gray-300">
           <thead class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20 border-t border-b border-gray-100 dark:border-gray-700/60">
             <tr>
-              <th v-if="selectable" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
-                <div class="flex items-center">
+              <th v-if="selectable" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px text-center">
+                <div class="flex items-center justify-center">
                   <label class="inline-flex">
                     <span class="sr-only">Seleccionar todo</span>
                     <input v-model="selectAll" class="form-checkbox" type="checkbox" @click="toggleSelectAll">
@@ -25,15 +22,15 @@
               <th
                 v-for="column in columns"
                 :key="column.key"
-                class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"
+                class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap text-left"
               >
                 <slot :name="`header-${column.key}`" :column="column">
-                  <div class="font-semibold" :class="headerAlignClass(column)">
+                  <div class="font-semibold text-left">
                     {{ column.label }}
                   </div>
                 </slot>
               </th>
-              <th v-if="showActions" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+              <th v-if="showActions" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap text-left">
                 <slot name="header-actions">
                   <div v-if="actionsLabel" class="font-semibold text-left">{{ actionsLabel }}</div>
                   <span v-else class="sr-only">Menú</span>
@@ -44,8 +41,8 @@
 
           <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-700/60">
             <tr v-for="row in rows" :key="getRowKey(row)">
-              <td v-if="selectable" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
-                <div class="flex items-center">
+              <td v-if="selectable" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px text-center">
+                <div class="flex items-center justify-center">
                   <label class="inline-flex">
                     <span class="sr-only">Seleccionar</span>
                     <input
@@ -62,11 +59,14 @@
               <td
                 v-for="column in columns"
                 :key="column.key"
-                class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"
+                class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap text-left"
               >
                 <slot :name="`cell-${column.key}`" :row="row" :column="column" :value="row[column.key]">
                   <!-- image-label -->
-                  <div v-if="column.type === 'image-label'" class="flex items-center">
+                  <div
+                    v-if="column.type === 'image-label'"
+                    class="flex items-center justify-start"
+                  >
                     <div class="w-10 h-10 shrink-0 mr-2 sm:mr-3">
                       <img
                         v-if="getCellImage(row, column)"
@@ -74,25 +74,28 @@
                         :src="getCellImage(row, column)"
                         width="40"
                         height="40"
-                        :alt="String(row[column.key] ?? '')"
+                        :alt="formatCellValue(row[column.key])"
                       >
                     </div>
                     <div class="font-medium text-gray-800 dark:text-gray-100">
-                      {{ row[column.key] }}
+                      {{ formatCellValue(row[column.key]) }}
                     </div>
                   </div>
 
                   <!-- badge -->
                   <div
                     v-else-if="column.type === 'badge'"
-                    class="inline-flex font-medium rounded-full text-center px-2.5 py-0.5"
+                    class="inline-flex font-medium rounded-full text-left px-2.5 py-0.5"
                     :class="resolveCellClass(row, column)"
                   >
-                    {{ row[column.key] }}
+                    {{ formatCellValue(row[column.key]) }}
                   </div>
 
                   <!-- icon-label -->
-                  <div v-else-if="column.type === 'icon-label'" class="flex items-center">
+                  <div
+                    v-else-if="column.type === 'icon-label'"
+                    class="flex items-center justify-start"
+                  >
                     <svg
                       class="fill-current text-gray-400 dark:text-gray-500 shrink-0 mr-2"
                       width="16"
@@ -105,35 +108,32 @@
                         :d="path"
                       />
                     </svg>
-                    <div>{{ row[column.key] }}</div>
+                    <div>{{ formatCellValue(row[column.key]) }}</div>
                   </div>
 
                   <!-- text (default) -->
                   <div
                     v-else
                     :class="[
-                      cellAlignClass(column.align),
+                      'text-left',
                       cellTextClass(row, column),
                     ]"
                   >
-                    {{ row[column.key] }}
+                    {{ formatCellValue(row[column.key]) }}
                   </div>
                 </slot>
               </td>
 
-              <td v-if="showActions" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
+              <td v-if="showActions" class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px text-left">
                 <slot name="actions" :row="row">
                   <!-- inline: botones por fila -->
-                  <div v-if="actionsMode === 'inline'" class="space-x-1">
+                  <div v-if="actionsMode === 'inline'" class="flex justify-start space-x-1">
                     <button
                       v-for="action in actionButtons"
                       :key="action.key"
                       type="button"
-                      class="rounded-full"
-                      :class="action.tone === 'danger'
-                        ? 'text-red-500 hover:text-red-600'
-                        : 'text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400'"
-                      @click="emitAction(action.key, row)"
+                      class="rounded-full text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                      @click.stop="emitAction(action.key, row)"
                     >
                       <span class="sr-only">{{ action.label }}</span>
                       <svg class="w-8 h-8 fill-current" viewBox="0 0 32 32">
@@ -170,7 +170,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
     </div>
   </div>
 </template>
@@ -178,6 +177,7 @@
 <script lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import { toTitleCase } from '~/shared/utils/format'
 import {
   UTABLE_BADGE_FALLBACK_CLASS,
   UTABLE_TEXT_MAP_FALLBACK_CLASS,
@@ -296,17 +296,10 @@ export default {
       selectAll.value = false
     })
 
-    const headerAlignClass = (column: UTableColumn) => {
-      const align = column.headerAlign ?? column.align
-      if (align === 'right') return 'text-right'
-      if (align === 'center') return ''
-      return 'text-left'
-    }
-
-    const cellAlignClass = (align?: UTableColumn['align']) => {
-      if (align === 'center') return 'text-center'
-      if (align === 'right') return 'text-right'
-      return 'text-left'
+    const formatCellValue = (value: unknown) => {
+      if (typeof value !== 'string') return String(value ?? '')
+      if (value === '-') return value
+      return toTitleCase(value)
     }
 
     const cellVariantClass = (variant?: UTableColumn['variant']) => {
@@ -379,8 +372,7 @@ export default {
       isRowSelected,
       toggleRow,
       toggleSelectAll,
-      headerAlignClass,
-      cellAlignClass,
+      formatCellValue,
       resolveCellClass,
       cellTextClass,
       getCellImage,
